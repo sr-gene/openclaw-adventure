@@ -13,7 +13,9 @@ OpenClaw runs as a persistent daemon that connects LLMs (Claude, OpenAI, local m
 ## Research Structure
 
 - `research/` — findings on hardware, installation, configuration, and use cases
-  - `mac-mini-specs.md` — Mac Mini spec comparison and recommendation
+  - `mac-mini-specs-2026-03-30.md` — Mac Mini spec comparison, recommendation, and session 1 conclusions
+  - `getting-started-openclaw-2026-03-30.md` — OpenClaw install guide (older, manual steps)
+  - `setup-guide-2026-03-30.md` — OpenClaw setup guide (newer, more complete)
 
 ## Key Decisions Made
 

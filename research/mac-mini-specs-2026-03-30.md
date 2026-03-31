@@ -1,4 +1,4 @@
-# Mac Mini Spec Research for OpenClaw
+# Mac Mini Spec Research & Session 1 Conclusions
 
 ## What is OpenClaw?
 
@@ -15,17 +15,13 @@ OpenClaw is a self-hosted personal AI agent gateway ([github.com/openclaw/opencl
 
 ## Use Case
 
-Financial research and strategy using **multiple concurrent agents** doing web crawling, data gathering, and analysis — all routed to cloud LLMs. No local models.
+Financial research and strategy automation using **multiple concurrent agents** doing web crawling, data gathering, and analysis — all routed to cloud LLMs. No local models. Results delivered via Telegram.
 
 ---
 
 ## Hardware Decision: Mac Mini M4, 16GB RAM, 512GB SSD
 
 **PURCHASED**
-
-| Component | Choice |
-|-----------|--------|
-| Mac Mini M4 16GB 512GB | New |
 
 ### Why M4 over M1 used
 - M1 used 16GB costs ~$500–580 — not much cheaper
@@ -42,13 +38,7 @@ Financial research and strategy using **multiple concurrent agents** doing web c
 - Avoids external drive complexity
 - Internal NVMe is faster for research outputs, crawled data, and logs
 - Clean single-machine setup
-
-### What was ruled out
-| Option | Reason |
-|--------|--------|
-| M4 24GB | $400 more — only useful for local models, which we ruled out |
-| M4 Pro 48GB | Only needed for 32B–70B local models |
-| M1 used 16GB | Too close in price, slower, shorter support window |
+- Can add external 1TB SSD later if storage fills up
 
 ---
 
@@ -56,14 +46,14 @@ Financial research and strategy using **multiple concurrent agents** doing web c
 
 Accessed via **OpenRouter** (single API key, native OpenClaw integration):
 
-| Role | Model | Cost/1M tokens |
-|------|-------|----------------|
-| Strategy & synthesis | Claude Sonnet 4.6 | $3 in / $15 out |
-| Web research + search | GPT-4o | $2.50 in / $10 out |
-| Mid-tier analysis | Gemini 2.5 Pro | $1.25 in / $5 out |
-| Bulk crawl & summarize | DeepSeek V3.2 | $0.28 in / $0.42 out |
+| Priority | Model | Role | Cost/1M tokens |
+|----------|-------|------|----------------|
+| 1st | DeepSeek V3.2 | Bulk crawling & summarizing | $0.28 in / $0.42 out |
+| 2nd | Gemini 2.5 Pro | Mid-tier analysis | $1.25 in / $5 out |
+| 3rd | GPT-4o | Web research (built-in search) | $2.50 in / $10 out |
+| 4th | Claude Sonnet 4.6 | Final synthesis & strategy | $3 in / $15 out |
 
-**Note:** Use Gemini 2.5 Pro, not 3.1 Pro (3.1 is preview-only, more expensive, unstable).
+**Key rule:** Let DeepSeek handle 90% of tasks. Use Claude only for final reports.
 
 ### Monthly Cost Estimate
 
@@ -73,14 +63,29 @@ Accessed via **OpenRouter** (single API key, native OpenClaw integration):
 | Medium (20–30 tasks/day) | ~$161/mo |
 | Heavy (50+ tasks/day) | ~$320/mo |
 
-Cost tip: Route 90% of tasks to DeepSeek, use Claude/GPT-4o for final synthesis only.
+---
+
+## Tools Chosen
+
+| Tool | Purpose |
+|------|---------|
+| OpenClaw | Self-hosted AI agent gateway |
+| OpenRouter | Unified API access to all 4 LLMs |
+| Crawl4AI | Local web crawling, LLM-ready markdown output |
+| Telegram | First messaging channel (easiest to set up) |
 
 ---
 
-## Web Crawling
+## What Was Ruled Out
 
-- **Crawl4AI** — primary, local-first, LLM-ready markdown output
-- **Firecrawl** — managed API fallback
+| Option | Reason |
+|--------|--------|
+| Local LLMs | Competes with agent RAM, cloud APIs cheap enough |
+| M1 Mac Mini | Similar used price to M4 new, slower, less future-proof |
+| M4 Pro 48GB | Only needed for 32B+ local models — overkill |
+| M4 24GB | $400 more, only useful for local models |
+| Gemini 3.1 Pro | Preview only, unstable, more expensive than 2.5 Pro |
+| External SSD (now) | 512GB internal is sufficient to start |
 
 ---
 
