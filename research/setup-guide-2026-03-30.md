@@ -10,7 +10,7 @@ This guide covers a complete from-scratch setup of OpenClaw on a fresh Mac Mini 
 
 **What you'll need:**
 - Mac Mini M4 connected, logged in, with internet access
-- [OpenRouter account](https://openrouter.ai) with API key (covers all 4 LLMs via one key)
+- API keys for each provider: Anthropic, OpenAI, Google AI, DeepSeek (direct — no OpenRouter)
 - Telegram account (for the messaging channel)
 - Firecrawl API key ([firecrawl.dev](https://firecrawl.dev)) for web scraping
 
@@ -63,23 +63,20 @@ openclaw security audit --fix
 
 ## Phase 2 — Configure OpenRouter + LLM Stack
 
-Run the OpenRouter auth command (replaces any wizard config):
-
-```bash
-openclaw onboard --auth-choice apiKey --token-provider openrouter --token "YOUR_OPENROUTER_API_KEY"
-```
-
-Then edit `~/.openclaw/openclaw.json` to set up model routing:
+Configure direct API keys in `~/.openclaw/openclaw.json`:
 
 ```json5
 {
   env: {
-    OPENROUTER_API_KEY: "sk-or-..."
+    ANTHROPIC_API_KEY: "sk-ant-...",
+    OPENAI_API_KEY: "sk-...",
+    GOOGLE_API_KEY: "AIza...",
+    DEEPSEEK_API_KEY: "sk-..."
   },
   agents: {
     defaults: {
       model: {
-        primary: "openrouter/anthropic/claude-sonnet-4-6"
+        primary: "anthropic/claude-sonnet-4-6"
       }
     }
   }
@@ -92,10 +89,10 @@ Each sub-agent in a research pipeline gets its own model based on task type:
 
 | Role | Model | Why |
 |------|-------|-----|
-| Orchestrator / synthesis | `openrouter/anthropic/claude-sonnet-4-6` | Best reasoning for strategy and final reports |
-| Web research + search | `openrouter/openai/gpt-4o` | Strong tool use and search |
-| Mid-tier analysis | `openrouter/google/gemini-2.5-pro` | Good cost/capability for analysis tasks |
-| Bulk crawl / summarize | `openrouter/deepseek/deepseek-v3.2` | Cheapest — use for 90% of data gathering |
+| Orchestrator / synthesis | `anthropic/claude-sonnet-4-6` | Best reasoning for strategy and final reports |
+| Web research + search | `openai/gpt-4o` | Strong tool use and search |
+| Mid-tier analysis | `google/gemini-2.5-pro` | Good cost/capability for analysis tasks |
+| Bulk crawl / summarize | `deepseek/deepseek-v3.2` | Cheapest — use for 90% of data gathering |
 
 Cost tip: Route the majority of tasks to DeepSeek. Only escalate to Claude/GPT-4o for final synthesis.
 

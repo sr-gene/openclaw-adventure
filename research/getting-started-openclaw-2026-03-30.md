@@ -103,26 +103,27 @@ launchctl start ~/Library/LaunchAgents/com.openclaw.gateway.plist
 
 ---
 
-## Configure OpenRouter (All 4 LLMs in One)
+## Configure Direct API Keys (All 4 LLMs)
 
 Edit the config file at `~/.openclaw/openclaw.json`:
 
 ```json
 {
-  "models": {
-    "primary": "openrouter/anthropic/claude-sonnet-4-6",
-    "subagent": "openrouter/deepseek/deepseek-v3.2",
-    "heartbeat": "openrouter/google/gemini-2.5-pro"
+  "env": {
+    "ANTHROPIC_API_KEY": "sk-ant-...",
+    "OPENAI_API_KEY": "sk-...",
+    "GOOGLE_API_KEY": "AIza...",
+    "DEEPSEEK_API_KEY": "sk-..."
   },
-  "providers": {
-    "openrouter": {
-      "apiKey": "YOUR_OPENROUTER_API_KEY"
-    }
+  "models": {
+    "primary": "anthropic/claude-sonnet-4-6",
+    "subagent": "deepseek/deepseek-v3.2",
+    "heartbeat": "google/gemini-2.5-pro"
   }
 }
 ```
 
-Get your OpenRouter API key at [openrouter.ai](https://openrouter.ai) — one key for all 4 models.
+Get API keys directly from each provider — no OpenRouter middleman (~8% markup avoided).
 
 **Model routing strategy:**
 - `primary` → Claude Sonnet (complex reasoning, final reports)
