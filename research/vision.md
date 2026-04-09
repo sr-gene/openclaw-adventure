@@ -14,12 +14,13 @@ This document captures the full vision for running OpenClaw as a personal AI age
 
 | Priority | Use Case | Status |
 |----------|----------|--------|
-| 1st | UC-5: Gmail + Google Calendar Daily/Weekly Reports | Next up |
-| 2nd | TBD | — |
-| 3rd | TBD | — |
-| 4th | TBD | — |
-| 5th | TBD | — |
-| 6th | TBD | — |
+| 1st | UC-5: Gmail + Calendar Daily/Weekly Reports | Done |
+| 2nd | UC-3: Household Account Book | Next up |
+| 3rd | UC-1: Twitter/X Intelligence Reports | — |
+| 4th | UC-2: News Crawler + Portfolio Impact Reports | — |
+| 5th | UC-4: Financial Research & Investment Strategy | — |
+| 6th | UC-6: Proactive Overnight Agent (HEARTBEAT.md) | Research done |
+| 7th | UC-7: Fashion Market Research (TIME 타임 MD) | Research done |
 
 ---
 
@@ -133,23 +134,25 @@ Telegram delivery
 
 ---
 
-### UC-5: Gmail + Google Calendar Daily/Weekly Reports
+### UC-5: Gmail + Calendar Daily/Weekly Reports
 
 Personal inbox and calendar awareness without manual checking.
 
 **Daily briefing (7:00 AM, weekdays):**
 - Unread emails: flag anything requiring same-day action
-- Today's calendar events with prep notes if relevant
+- Today's calendar events (iCloud — includes wife's shared calendars) with prep notes if relevant
 - Top 3 news headlines on tracked topics
 - Weather
 
 **Weekly review (Sunday 9:00 AM):**
 - Email digest: key threads from the past week
-- Calendar: what happened + what's coming up next week
+- Calendar: what happened + what's coming up next week (both personal + shared family calendar)
 - Tasks/follow-ups surfaced from email threads
 - Financial week-in-review (portfolio performance, key macro events)
 
-**Integration:** `gog` skill (Google Operations Gateway) — OAuth 2.0 via Google Cloud project. No passwords stored. Access revocable at any time from Google Account settings.
+**Integrations:**
+- **Gmail:** `gog` skill (Google Operations Gateway) — OAuth 2.0 via Google Cloud project
+- **iCloud Calendar:** `icloud-caldav` skill (CalDAV direct) + `apple-calendar` skill (AppleScript local reads). Uses app-specific password from appleid.apple.com. Sees all calendars including wife's shared calendars. Full read/write, real-time sync.
 
 **Output:** Formatted daily/weekly brief delivered to Telegram
 

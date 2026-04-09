@@ -1,6 +1,6 @@
-# Gmail & Google Calendar Integration with OpenClaw
+# Gmail, Google Calendar & iCloud Calendar Integration with OpenClaw
 
-Research date: 2026-03-30
+Research date: 2026-03-30 (Gmail/Google Calendar), 2026-03-31 (iCloud Calendar)
 OpenClaw version target: 2026.3.x
 
 ---
@@ -183,8 +183,8 @@ openclaw cron add \
   --cron "0 7 * * *" \
   --tz "America/New_York" \
   --session isolated \
-  --message "Generate today's briefing: check unread emails for anything urgent, pull today's calendar events, summarize weather, and give a brief news digest. Format as a clean daily brief." \
-  --model opus \
+  --message "Generate today's briefing: check unread emails for anything urgent, pull today's iCloud calendar events (include shared family calendar), summarize weather, and give a brief news digest. Format as a clean daily brief." \
+  --model sonnet \
   --announce \
   --channel whatsapp \
   --to "+15551234567"
@@ -200,8 +200,8 @@ openclaw cron add \
   --cron "0 9 * * 0" \
   --tz "America/New_York" \
   --session isolated \
-  --message "Generate a weekly review: summarize emails from the past 7 days, review calendar events from the past week and upcoming week, flag incomplete tasks, and highlight key themes or priorities." \
-  --model opus \
+  --message "Generate a weekly review: summarize emails from the past 7 days, review iCloud calendar events (include shared family calendar) from the past week and upcoming week, flag incomplete tasks, and highlight key themes or priorities." \
+  --model sonnet \
   --announce \
   --channel whatsapp \
   --to "+15551234567"
@@ -304,7 +304,91 @@ Connections managed at [ctrl.maton.ai](https://ctrl.maton.ai). Rate limit: 10 re
 
 ---
 
+## 6. iCloud Calendar Integration
+
+iCloud Calendar uses **CalDAV** (not a REST API). OpenClaw has two official skills for this — use both together for the best coverage.
+
+### Why iCloud Calendar?
+
+Wife and I use shared iCloud calendars. CalDAV sees **all calendars on the account**, including ones shared by family members. No need to mirror to Google Calendar (which would be read-only and delayed 12-24 hours).
+
+### Skills overview
+
+| Skill | Mechanism | Use for |
+|-------|-----------|---------|
+| `icloud-caldav` | CalDAV to `caldav.icloud.com` | Full CRUD — read, write, delete events. Cross-device sync. |
+| `apple-calendar` | AppleScript via Calendar.app | Rich local reads — list, search, detect conflicts. No credentials needed. |
+
+### Step 1: Generate an app-specific password
+
+1. Go to [appleid.apple.com](https://appleid.apple.com)
+2. Sign in → Security → App-Specific Passwords
+3. Click `+`, label it "OpenClaw"
+4. Apple generates a 16-character password (e.g., `xxxx-xxxx-xxxx-xxxx`)
+5. Save it securely — you can't view it again (but can revoke and create a new one)
+
+**Prerequisite:** Two-factor authentication must be enabled on your Apple ID.
+
+### Step 2: Install the skills
+
+```bash
+# CalDAV skill (read/write/delete via iCloud)
+openclaw skills install icloud-caldav
+
+# AppleScript skill (local reads via Calendar.app)
+openclaw skills install apple-calendar
+```
+
+### Step 3: Configure credentials
+
+Add to `~/.openclaw/openclaw.json`:
+
+```json
+{
+  "env": {
+    "APPLE_ID": "you@icloud.com",
+    "APPLE_APP_PASSWORD": "xxxx-xxxx-xxxx-xxxx"
+  }
+}
+```
+
+### Step 4: Restart OpenClaw
+
+```bash
+openclaw gateway stop && openclaw gateway start
+```
+
+### Step 5: Test
+
+```bash
+# Via natural language in an OpenClaw session:
+# "List my iCloud calendars"
+# "What's on my calendar today?"
+# "Create an event titled 'Test' tomorrow at 2pm for 1 hour"
+```
+
+### Technical notes
+
+- CalDAV endpoint: `https://caldav.icloud.com/` (Apple routes to per-account `pXX-caldav.icloud.com` after auth)
+- Events stored as `.ics` files (iCalendar format)
+- No OAuth — Basic Auth with app-specific password only
+- No webhooks/push — polling required for reads
+- Updates require full `PUT` replacement (no `PATCH` support)
+- App-specific password can be revoked anytime at appleid.apple.com without affecting your main Apple ID password
+
+### Node.js libraries (if building custom skills later)
+
+| Library | Purpose |
+|---------|---------|
+| `tsdav` | CalDAV/CardDAV client for Node.js — handles auth, PROPFIND, queries |
+| `ical-generator` | Build valid `.ics` files |
+| `ical.js` | Parse `.ics` responses |
+
+---
+
 ## Recommended Setup Order
+
+### Gmail + Google Calendar (via gog)
 
 1. Install gog: `brew install steipete/tap/gogcli`
 2. Create Google Cloud project, enable Gmail API + Calendar API
@@ -314,6 +398,18 @@ Connections managed at [ctrl.maton.ai](https://ctrl.maton.ai). Rate limit: 10 re
 6. `gog auth list` to verify
 7. `openclaw skills install gog` to register with OpenClaw
 8. Test: `gog calendar today` and `gog gmail search 'newer_than:1d'`
-9. Add morning briefing cron job
-10. Add weekly review cron job
-11. Configure `HEARTBEAT.md` for ambient monitoring
+
+### iCloud Calendar
+
+9. Generate app-specific password at [appleid.apple.com](https://appleid.apple.com)
+10. `openclaw skills install icloud-caldav`
+11. `openclaw skills install apple-calendar`
+12. Add `APPLE_ID` and `APPLE_APP_PASSWORD` to `~/.openclaw/openclaw.json`
+13. Restart OpenClaw
+14. Test: "List my iCloud calendars" / "What's on my calendar today?"
+
+### Automation
+
+15. Add morning briefing cron job (includes both Gmail + iCloud Calendar)
+16. Add weekly review cron job
+17. Configure `HEARTBEAT.md` for ambient monitoring
